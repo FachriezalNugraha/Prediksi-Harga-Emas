@@ -70,8 +70,8 @@ def compar_error(rekap):
 
     return {
         "Rata-rata error MSE tanpa algoritma genetika": mean_mse_error, 
-        "Rata-rata error MSE dengan algoritma genetika": mean_rmse_error, 
-        "Rata-rata error RMSE tanpa algoritma genetika": mean_ga_mse_error, 
+        "Rata-rata error MSE dengan algoritma genetika": mean_ga_mse_error, 
+        "Rata-rata error RMSE tanpa algoritma genetika": mean_rmse_error, 
         "Rata-rata error RMSE dengan algoritma genetika": mean_ga_rmse_error
     }
 
