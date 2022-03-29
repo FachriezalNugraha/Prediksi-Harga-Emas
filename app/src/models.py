@@ -121,10 +121,15 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     return population, fitness, linreg
 
 
-def evaluate(model, mode, ga=False):
-    predictions = model.predict(session[mode]["X_test"])
-    true = session[mode]["y_test"]
+def evaluate(model, mode, denormalize=True):
+    predictions = model.predict(session["{}_test".format(mode)]["X_test"])
+    true = session["{}_test".format(mode)]["y_test"]
 
+    if denormalize:
+        scaler = session["scaler_{}_y".format(mode)]
+        predictions = scaler.inverse_transform(predictions)
+        true = scaler.inverse_transform(true)
+    
     r2 = r2_score(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
@@ -156,20 +161,37 @@ def predict_future(period, X, model, colname):
     return pd.DataFrame(predictions, columns=[colname], index=dates)
 
 
-def combine_predictions(period, X_test, rekap, model, model_ga):
+def predict_future_v3(X, model, colname, mode):
+    shift = st.session_state["shift"]
+    X = st.session_state["predictor_beli"].iloc[-shift:]
+
+    scaler = session["scaler_{}_y".format(mode)]
+    pred = model.predict(X)
+    pred = scaler.inverse_transform(pred)
+
+
+    df = pd.DataFrame({colname: np.squeeze(pred)}, index=X.index + pd.Timedelta(days=shift))
+    return df
+
+
+def combine_predictions(period, X_test, rekap, model, model_ga, mode):
     
     rekap = rekap[prediction_columns + error_columns]
 
     # Dapatkan hasil prediksi pada masa depan
-    prediksi_lanjut = predict_future(period=period, 
-                                     X=X_test, 
-                                     model=model,
-                                     colname="MLR Without Genetic")
+    prediksi_lanjut = predict_future_v3(
+        X=X_test, 
+        model=model,
+        colname="MLR Without Genetic",
+        mode=mode
+    )
 
-    prediksi_lanjut_ga = predict_future(period=period, 
-                                        X=X_test, 
-                                        model=model_ga,
-                                        colname="MLR With Genetic")
+    prediksi_lanjut_ga = predict_future_v3(
+        X=X_test, 
+        model=model_ga,
+        colname="MLR With Genetic",
+        mode=mode
+    )
     
     # Gabungkan hasil prediksi
     prediksi_lanjut_gabungan = pd.concat([prediksi_lanjut, prediksi_lanjut_ga], axis=1)
@@ -178,36 +200,33 @@ def combine_predictions(period, X_test, rekap, model, model_ga):
     prediksi_df = rekap.append(prediksi_lanjut_gabungan)
     
     # DataFrame pada waktu tertentu
-    prediksi_tertentu_df = prediksi_df.iloc[-period * 2:]
+    rekap_len = len(rekap)
+    prediksi_tertentu_df = prediksi_df.iloc[rekap_len - period: rekap_len + period]
 
     return prediksi_tertentu_df
 
 
-def prediction_date_based(date, X, y, model, model_ga):
+def prediction_date_based(date, X, model, model_ga, mode):
     
+    shift = session["shift"]
+    date_shift = pd.Timedelta(days=shift)
+
     # Copy Dataframe
     pd_date = pd.to_datetime(date, format="%Y-%m-%d")
     X = X.copy()
+    X = X.loc[pd_date - date_shift: pd_date - date_shift]
     
-    # Jika dalam jangkauan data
-    if pd_date <= X.index[-1]:
-        # Fitur data
-        feature = X.loc[pd_date: pd_date + pd.Timedelta(days=1)]
+    scaler = session["scaler_{}_y".format(mode)]
+    predictions = model.predict(X)
+    predictions_ga = model_ga.predict(X)
 
-        # Prediksi
-        predictions = y.copy().loc[pd_date: pd_date + pd.Timedelta(days=0)]
-        predictions.columns = ["Y_actual"]
-        predictions["MLR Without GA"] = model.predict(feature)[0][0]
-        predictions["MLR With Genetic"] = model_ga.predict(feature)[0][0]
+    predictions = scaler.inverse_transform(predictions)
+    predictions_ga = scaler.inverse_transform(predictions_ga)
 
-    # Jika pada masa depan
-    else:
-        steps = pd_date - X.index[-1]
-        steps = steps.days
-        predictions = predict_future(steps, X, model, "MLR Without GA")
-        predictions_ga = predict_future(steps, X, model_ga, "MLR With Genetic")
-        predictions = pd.concat([predictions, predictions_ga], axis=1).iloc[-1:]
-
-    predictions.index = [date.strftime("%Y-%m-%d") for date in predictions.index]
-
-    return predictions
+    
+    df = pd.DataFrame({
+        "MLR Without GA": np.squeeze(predictions),
+        "MLR With Genetic": np.squeeze(predictions_ga)
+    }, index=[pd_date])
+    
+    return df

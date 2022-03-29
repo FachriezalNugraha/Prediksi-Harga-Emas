@@ -1,3 +1,4 @@
+import streamlit as st
 import numpy as np
 import pandas as pd
 from bokeh.plotting import figure
@@ -40,10 +41,16 @@ def apply_bokeh_dark(p):
     p.yaxis.axis_line_color = TEXT_COLOR
 
 
-def compar_table(X_test, y_test, model, model_ga):
-    y_test_series = np.squeeze(y_test.values)
-    predictions_series = np.squeeze(model.predict(X_test))
-    predictions_ga_series = np.squeeze(model_ga.predict(X_test))
+def compar_table(X_test, y_test, model, model_ga, mode):
+    y_test_series = y_test.values
+    predictions_series = model.predict(X_test)
+    predictions_ga_series = model_ga.predict(X_test)
+
+    scaler = st.session_state["scaler_{}_y".format(mode)]
+    y_test_series = np.squeeze(scaler.inverse_transform(y_test_series))
+    predictions_series = np.squeeze(scaler.inverse_transform(predictions_series))
+    predictions_ga_series = np.squeeze(scaler.inverse_transform(predictions_ga_series))
+
     index = [date.strftime("%Y-%m-%d") for date in y_test.index]
 
     rekap = pd.DataFrame({
@@ -77,7 +84,7 @@ def compar_error(rekap):
 
 
 def error_bar_chart(rekap, days=30):
-    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[:days]
+    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[-days:]
     dates_str = list(different.index)
     different["date"] = dates_str
 
@@ -104,7 +111,7 @@ def error_bar_chart(rekap, days=30):
 
 
 def error_line_chart(rekap, days=30):
-    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[:days]
+    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[-days:]
     dates_str = list(different.index)
     different["date"] = dates_str
     p = figure(width=900, height=500, x_range=dates_str, sizing_mode="stretch_width")

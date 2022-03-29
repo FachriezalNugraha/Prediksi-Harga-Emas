@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 
 @st.cache
@@ -21,54 +22,89 @@ def scale_data(df):
     return df / 1000
 
 
-@st.cache
-def get_variables(df, column, period=1):
+def get_variables(df, mode, period=1):
     # Copy dataframe supaya tidak menimpa dataframe asli
     df = df.copy()
+    mode = mode.title()
 
-    # Buat variabel prediktor berdasarkan banyaknya periode waktu
-    response = df[[column]]
-    predictor = pd.concat([response.shift(i) for i in range(1, period + 1)], axis=1)
+    # Tentukan variabel
+    predictor = df[["Inflasi", "HargaMinyak", f"Kurs{mode}"]]
+    respon = df[[f"Harga{mode}"]]
 
-    # Sunting nama kolom supaya mudah dibaca
-    response.columns = [f"{column}"]
-    predictor.columns = [f"{column}-{lag}" for lag in range(1, period + 1)]
+    # Mundurkan variabel respon ke observasi pada beberapa hari yang lalu
+    respon = respon.shift(-period)
 
-    # Gabungkan respon dan prediktor
-    variables = pd.concat([response, predictor], axis=1)
+    # Hilangkan missing value
+    respon = respon.dropna()
 
-    # Hilangkan nilai NaN
-    variables = variables.dropna()
+    # Simpan predictor asli
+    st.session_state["predictor_{}".format(mode.lower())] = predictor
 
-    # Kembalikan prediktor dan respon
-    return variables[predictor.columns], variables[response.columns]
+    # Sejajarkan variabel respon dan prediktor supaya memiliki jumlah observasi yang sama
+    predictor = predictor.loc[respon.index]
+
+    # Sesuaikan tanggal pada variabel respon
+    respon.index += pd.Timedelta(days=60)
+
+    return predictor, respon
 
 
-@st.cache
-def split_data(X, y, test_size, shuffle=False):
-    return train_test_split(X, y, test_size=test_size, shuffle=shuffle)
+def split_data(X, y, test_size):
+    return train_test_split(X, y, test_size=test_size, random_state=42)
 
 
-@st.cache
 def preprocess_data(df, test_size):
     # Pre - Urutkan Data
     df_sorted = sort_by_column(df)
 
     # Pre - Variabel dari Data
-    X_beli, y_beli = get_variables(df_sorted, "HargaBeli", period=4)
-    X_jual, y_jual = get_variables(df_sorted, "HargaJual", period=4)
+    shift = 60
+    X_beli, y_beli = get_variables(df_sorted, "beli", period=shift)
+    X_jual, y_jual = get_variables(df_sorted, "jual", period=shift)
 
     # Pre - Atur Skala Data
-    X_beli = scale_data(X_beli)
+    # X_beli = scale_data(X_beli)
     y_beli = scale_data(y_beli)
-    X_jual = scale_data(X_jual)
+    # X_jual = scale_data(X_jual)
     y_jual = scale_data(y_jual)
+
+    st.session_state["shift"] = shift
+    st.session_state["X_beli"] = X_beli
+    st.session_state["y_beli"] = y_beli
+    st.session_state["X_jual"] = X_jual
+    st.session_state["y_jual"] = y_jual
+
+    
 
     # Split Data Harga Beli
     X_beli_train, X_beli_test, y_beli_train, y_beli_test = split_data(X_beli, y_beli, test_size=test_size)
 
     # Split Data Harga Jual
     X_jual_train, X_jual_test, y_jual_train, y_jual_test = split_data(X_jual, y_jual, test_size=test_size)
+
+    # Normalisasi Data
+    scaler_beli_x = MinMaxScaler().fit(X_beli_train)
+    scaler_beli_y = MinMaxScaler().fit(y_beli_train)
+    scaler_jual_x = MinMaxScaler().fit(X_jual_train)
+    scaler_jual_y = MinMaxScaler().fit(y_jual_train)
+
+    st.session_state["scaler_beli_x"] = scaler_beli_x
+    st.session_state["scaler_beli_y"] = scaler_beli_y
+    st.session_state["scaler_jual_x"] = scaler_jual_x
+    st.session_state["scaler_jual_y"] = scaler_jual_y
+
+    X_beli_train[:] = scaler_beli_x.transform(X_beli_train)
+    X_beli_test[:] = scaler_beli_x.transform(X_beli_test)
+    y_beli_train[:] = scaler_beli_y.transform(y_beli_train)
+    y_beli_test[:] = scaler_beli_y.transform(y_beli_test)
+
+    X_jual_train[:] = scaler_jual_x.transform(X_jual_train)
+    X_jual_test[:] = scaler_jual_x.transform(X_jual_test)
+    y_jual_train[:] = scaler_jual_y.transform(y_jual_train)
+    y_jual_test[:] = scaler_jual_y.transform(y_jual_test)
+
+    st.session_state["predictor_beli"][:] = scaler_beli_x.transform(st.session_state["predictor_beli"])
+    st.session_state["predictor_jual"][:] = scaler_jual_x.transform(st.session_state["predictor_jual"])
 
     # Serialisasi data
     beli_train = {"X_train": X_beli_train, "y_train": y_beli_train}
@@ -77,3 +113,17 @@ def preprocess_data(df, test_size):
     jual_test = {"X_test": X_jual_test, "y_test": y_jual_test}
 
     return beli_train, beli_test, jual_train, jual_test
+
+
+def apply_test_scaler(X_test, y_test, mode):
+    X_test = X_test.copy()
+    y_test = y_test.copy()
+
+    X_test[:] = st.session_state["scaler_{}_x".format(mode)].transform(X_test)
+    y_test[:] = st.session_state["scaler_{}_y".format(mode)].transform(y_test)
+
+    return {"X_test": X_test, "y_test": y_test}
+
+def date_offset(df):
+    df.index = pd.to_datetime(df.index, format="%Y-%m-%d") + pd.Timedelta(days=st.session_state["shift"])
+    df.index = [date.strftime("%Y-%m-%d") for date in df.index]
