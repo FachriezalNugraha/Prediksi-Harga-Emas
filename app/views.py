@@ -223,7 +223,7 @@ def show_pred_comparison(mode):
         model=session["linreg_{}".format(mode)], 
         model_ga=session["linreg_{}_ga".format(mode)],
         mode=mode,
-        **session["{}_real_test".format(mode)]
+        **session["{}_test".format(mode)]
     )
     session["rekap_{}".format(mode)] = rekap
     st.dataframe(rekap_show)
@@ -323,7 +323,7 @@ def show_predict_date(mode, date):
     shift = session["shift"]
     predictions_date = prediction_date_based(
         date=date, 
-        X=session["predictor_{}".format(mode)].iloc[:-shift],
+        X=session["predictor_{}".format(mode)],
         model=st.session_state["linreg_beli"],
         model_ga=st.session_state["linreg_beli_ga"],
         mode=mode

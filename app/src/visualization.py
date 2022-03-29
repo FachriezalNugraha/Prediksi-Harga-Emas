@@ -65,7 +65,7 @@ def compar_table(X_test, y_test, model, model_ga, mode):
         "Error RMSE MLR+Genetic": np.sqrt((y_test_series - predictions_ga_series)**2),
     }, index=index)
 
-    rekap_show = rekap.style.format(precision=2)
+    rekap_show = rekap.sort_index().style.format(precision=2)
     return rekap, rekap_show
 
 

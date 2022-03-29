@@ -215,7 +215,7 @@ def prediction_date_based(date, X, model, model_ga, mode):
     pd_date = pd.to_datetime(date, format="%Y-%m-%d")
     X = X.copy()
     X = X.loc[pd_date - date_shift: pd_date - date_shift]
-    
+
     scaler = session["scaler_{}_y".format(mode)]
     predictions = model.predict(X)
     predictions_ga = model_ga.predict(X)
