@@ -1,15 +1,14 @@
-import streamlit as st
-import numpy as np
-import pandas as pd
 from bokeh.plotting import figure
 from bokeh.models import Legend
 from bokeh.palettes import Category10_3, Category10_4
 from bokeh.transform import dodge
-from src.models import prediction_columns
+
+from predictions import prediction_columns
 
 
 BG_COLOR = "#0E1117"
 TEXT_COLOR = "#FAFAFA"
+color1, color2, color3, color4 = Category10_4
 
 def apply_bokeh_dark(p):
     # Outline
@@ -41,48 +40,6 @@ def apply_bokeh_dark(p):
     p.yaxis.axis_line_color = TEXT_COLOR
 
 
-def compar_table(X_test, y_test, model, model_ga, mode):
-    y_test_series = y_test.values
-    predictions_series = model.predict(X_test)
-    predictions_ga_series = model_ga.predict(X_test)
-
-    scaler = st.session_state["scaler_{}_y".format(mode)]
-    y_test_series = np.squeeze(scaler.inverse_transform(y_test_series))
-    predictions_series = np.squeeze(scaler.inverse_transform(predictions_series))
-    predictions_ga_series = np.squeeze(scaler.inverse_transform(predictions_ga_series))
-
-    index = [date.strftime("%Y-%m-%d") for date in y_test.index]
-
-    rekap = pd.DataFrame({
-        "Y_test": y_test_series,
-        "MLR Without Genetic": predictions_series,
-        "MLR With Genetic": predictions_ga_series,
-        "Error MLR": abs(y_test_series - predictions_series),
-        "Error MLR+Genetic": abs(y_test_series - predictions_ga_series),
-        "Error MSE MLR": (y_test_series - predictions_series)**2,
-        "Error MSE MLR+Genetic": (y_test_series - predictions_ga_series)**2,
-        "Error RMSE MLR": np.sqrt((y_test_series - predictions_series)**2),
-        "Error RMSE MLR+Genetic": np.sqrt((y_test_series - predictions_ga_series)**2),
-    }, index=index)
-
-    rekap_show = rekap.sort_index().style.format(precision=2)
-    return rekap, rekap_show
-
-
-def compar_error(rekap):
-    mean_mse_error = rekap["Error MSE MLR"].mean()
-    mean_rmse_error = np.sqrt(mean_mse_error)
-    mean_ga_mse_error = rekap["Error MSE MLR+Genetic"].mean()
-    mean_ga_rmse_error = np.sqrt(mean_ga_mse_error)
-
-    return {
-        "Rata-rata error MSE tanpa algoritma genetika": mean_mse_error, 
-        "Rata-rata error MSE dengan algoritma genetika": mean_ga_mse_error, 
-        "Rata-rata error RMSE tanpa algoritma genetika": mean_rmse_error, 
-        "Rata-rata error RMSE dengan algoritma genetika": mean_ga_rmse_error
-    }
-
-
 def error_bar_chart(rekap, days=30):
     different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[-days:]
     dates_str = list(different.index)
@@ -91,16 +48,18 @@ def error_bar_chart(rekap, days=30):
     p = figure(width=900, height=500, x_range=dates_str, tools=[], sizing_mode="stretch_width")
 
     v1 = p.vbar(x=dodge("date", -0.11, range=p.x_range), width=0.2, top="Error MSE MLR", 
-                color=Category10_4[0], source=different)
+                color=color1, source=different)
 
     v2 = p.vbar(x=dodge("date", 0.11, range=p.x_range), width=0.2, top="Error MSE MLR+Genetic", 
-                color=Category10_4[1], source=different)
+                color=color2, source=different)
 
-    legend = Legend(items=[
-        ("Error MSE MLR", [v1]), 
-        ("Error MSE MLR+Genetic", [v2])
-    ], location="left", title_text_color=TEXT_COLOR, label_text_color=TEXT_COLOR,
-    background_fill_color=BG_COLOR)
+    legend = Legend(
+        items=[("Error MSE MLR", [v1]), ("Error MSE MLR+Genetic", [v2])], 
+        location="left", 
+        title_text_color=TEXT_COLOR, 
+        label_text_color=TEXT_COLOR,
+        background_fill_color=BG_COLOR
+    )
 
     p.xaxis.major_label_orientation = "vertical"
     

@@ -1,17 +1,27 @@
-from sklearn.metrics import r2_score, mean_squared_error
+import operator
+
 import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+from config import Config as c
 
 
 session = st.session_state
-prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
+prediction_columns = ["MLR Without Genetic", "MLR With Genetic"]
 error_columns = ["Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR", "Error RMSE MLR+Genetic"]
 
 
+def get_linreg_model(X, y):
+    linreg = LinearRegression()
+    linreg = linreg.fit(X, y)
+    return linreg
+
+
 def create_population(size, n_feat):
-    population = np.random.uniform(low=-1., high=1., size=(size, n_feat + 1))
+    population = np.random.uniform(low=c.GENE_MIN, high=c.GENE_MAX, size=(size, n_feat + 1))
     return population
 
 
@@ -55,7 +65,7 @@ def mutation(chrom, mutation_rate=0.9):
     mutation_size = int(mutation_rate * length)
     
     random_gene = np.random.randint(0, length, size=mutation_size)
-    mutated_gene = np.random.uniform(-1., 1., size=mutation_size)
+    mutated_gene = np.random.uniform(c.GENE_MIN, c.GENE_MAX, size=mutation_size)
     chrom[random_gene] = mutated_gene
 
     return chrom
@@ -121,20 +131,20 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     return population, fitness, linreg
 
 
-def evaluate(model, mode, denormalize=True):
-    predictions = model.predict(session["{}_test".format(mode)]["X_test"])
-    true = session["{}_test".format(mode)]["y_test"]
+def evaluate(X, y, model, scaler_y=None):
+    
+    predictions = model.predict(X)
+    true = y
 
-    if denormalize:
-        scaler = session["scaler_{}_y".format(mode)]
-        predictions = scaler.inverse_transform(predictions)
-        true = scaler.inverse_transform(true)
+    if scaler_y is not None:
+        predictions = scaler_y.inverse_transform(predictions)
+        true = scaler_y.inverse_transform(true)
     
     r2 = r2_score(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return {"r2": r2, "mse": mse, "rmse": rmse}
+    return r2, mse, rmse
 
 
 
@@ -209,14 +219,16 @@ def combine_predictions(period, X_test, rekap, model, model_ga, mode):
 def prediction_date_based(date, X, model, model_ga, mode):
     
     shift = session["shift"]
-    date_shift = pd.Timedelta(days=shift)
 
     # Copy Dataframe
     pd_date = pd.to_datetime(date, format="%Y-%m-%d")
-    X = X.copy()
-    X = X.loc[pd_date - date_shift: pd_date - date_shift]
+    start = pd_date - pd.Timedelta(days=shift)
+    end = start
 
-    scaler = session["scaler_{}_y".format(mode)]
+    X = X.copy()
+    X = X.loc[start: end]
+    
+    scaler = session["scaler_{}_y".format(mode)]; 
     predictions = model.predict(X)
     predictions_ga = model_ga.predict(X)
 
