@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 from config import Config as c
 from data import load_csv_data, load_custom_data, verify_data
 from models import get_linreg_model, gen_algo, evaluate
-from pre import preprocess_data, prepare_data
+from pre import preprocess_data, prepare_data, sort_splitted_data
 from predictions import predict_ranged_days, prediction_date_based
 from tables import compar_error, rekap_table
 from plots import error_bar_chart, error_line_chart, predictions_line_chart
@@ -222,21 +222,28 @@ def main():
             # Dapatkan mode
             mode = get_session("mode")
 
-            # Dapatkan data test
-            X_test, y_test = get_session("X_test", "y_test")
+            # Dapatkan data train dan test
+            X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
+            # Urutkan data
+            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
+            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
+            
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
+            # Dapatkan metrik
+            mse, rmse, mse_ga, rmse_ga = get_session("mse", "rmse", "mse_ga", "rmse_ga")
+
             st.write(f"Prediksi pada harga {mode}")
 
             # Dapatkan tabel rekapitulasi
             rekap, rekap_show = rekap_table(
-                X_test=X_test,
-                y_test=y_test,
+                X_test=X_test_sorted,
+                y_test=y_test_sorted,
                 model=linreg, 
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
@@ -244,7 +251,14 @@ def main():
             st.write(rekap_show)
 
             # Dapatkan rata-rata error
-            error_data = compar_error(rekap)
+            error_data = {
+                "Rata-rata error MSE tanpa algoritma genetika": mse, 
+                "Rata-rata error MSE dengan algoritma genetika": mse_ga, 
+                "Rata-rata error RMSE tanpa algoritma genetika": rmse, 
+                "Rata-rata error RMSE dengan algoritma genetika": rmse_ga
+            }
+            # error_data = compar_error(rekap)
+            
             for error_lable, value in error_data.items():
                 st.write(f"{error_lable}: {value:.2f}")
 
