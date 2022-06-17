@@ -86,7 +86,7 @@ def main():
     # Tampilan Parameter Data
     with st.expander("Parameter Data"):
         with st.form("Parameter data"):
-            mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
+            mode = st.selectbox(label="Pilihan Harga Emas", options=[c.BUY_MODE, c.SELL_MODE])
             test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
             is_submit = st.form_submit_button("Simpan")
         
@@ -112,7 +112,7 @@ def main():
     
     # Tampilan Parameter Genetika
     with st.expander("Parameter Algoritma Genetika"):
-        with st.form("Parameter gen"):
+        with st.form("Parameter Algoritma Genetika"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=100, step=100)
             cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
