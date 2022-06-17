@@ -111,7 +111,7 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Genetika"):
+    with st.expander("Parameter Algoritma Genetika"):
         with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=100, step=100)
@@ -267,7 +267,7 @@ def main():
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error"):
+    with st.expander("Visualisasi Error Model"):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
