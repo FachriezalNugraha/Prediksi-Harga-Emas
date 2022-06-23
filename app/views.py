@@ -191,12 +191,12 @@ def main():
             scaler_y = get_session("scaler_y")
 
             # Evaluasi model regresi linier
-            r2, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
-            linreg_metrics = [r2, mse, rmse, None]
+            mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
+            linreg_metrics = [mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
-            r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
-            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, 1 / mse_ga]
+            mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
+            linreg_ga_metrics = [mse_ga, rmse_ga, 1 / mse_ga]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
@@ -211,8 +211,8 @@ def main():
 
             # Simpan metrik ke dalam session
             set_session(
-                r2=r2, mse=mse, rmse=rmse,
-                r2_ga=r2_ga, mse_ga=mse_ga, rmse_ga=rmse_ga
+                mse=mse, rmse=rmse,
+                mse_ga=mse_ga, rmse_ga=rmse_ga
             )
                 
 
