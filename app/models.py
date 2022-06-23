@@ -140,11 +140,11 @@ def evaluate(X, y, model, scaler_y=None):
         predictions = scaler_y.inverse_transform(predictions)
         true = scaler_y.inverse_transform(true)
     
-    r2 = r2_score(true, predictions)
+    #r2 = r2_score(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return r2, mse, rmse
+    return mse, rmse
 
 
 

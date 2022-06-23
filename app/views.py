@@ -204,7 +204,7 @@ def main():
             metric_table = pd.DataFrame(
                 data=[linreg_metrics, linreg_ga_metrics],
                 index=["Regresi Linier", "Regresi Linier + GA"],
-                columns=["R2", "MSE", "RMSE", "Fitness"]
+                columns=["MSE", "RMSE", "Fitness"]
             )
             metric_table = metric_table.style.format(precision=3)
             st.table(metric_table)
