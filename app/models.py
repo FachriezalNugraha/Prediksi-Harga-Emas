@@ -71,7 +71,7 @@ def mutation(chrom, mutation_rate=0.9):
     return chrom
 
 
-@st.cache(suppress_st_warning=True)
+#@st.cache(suppress_st_warning=True)#
 def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     print("START")
     # Hitung jumlah fitur
