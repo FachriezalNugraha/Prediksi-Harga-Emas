@@ -186,6 +186,9 @@ def main():
 
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
+            
+            # Dapatkan nilai fitness terbaik
+            best_fitness = get_session("best_fitness")
 
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
