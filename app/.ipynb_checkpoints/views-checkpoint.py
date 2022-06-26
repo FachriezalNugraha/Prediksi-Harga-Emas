@@ -199,7 +199,7 @@ def main():
 
             # Evaluasi model regresi linier + GA
             mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
-            best_fitness = 1 / mse_ga 
+            #best_fitness = 1 / mse_ga 
             linreg_ga_metrics = [mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
