@@ -78,8 +78,8 @@ def prediction_date_based(date, X, model, model_ga, scaler_y):
     predictions_ga = scaler_y.inverse_transform(predictions_ga)
 
     predictions_data = {
-        "MLR Without GA": np.squeeze(predictions), 
-        "MLR With Genetic": np.squeeze(predictions_ga)
+        "MLR Without GA": np.squeeze(predictions)*10000, 
+        "MLR With Genetic": np.squeeze(predictions_ga)*10000
     }
 
     df = pd.DataFrame(

@@ -114,7 +114,7 @@ def main():
     with st.expander("Parameter Algoritma Genetika"):
         with st.form("Parameter Algoritma Genetika"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
-            size = st.number_input(label="Ukuran Populasi", min_value=10, step=50)
+            size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
             cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
             mr = st.number_input(label="Mutation Rate", min_value=0.0, max_value=1.0, step=0.1)
             is_submit = st.form_submit_button("Simpan")
