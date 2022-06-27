@@ -7,7 +7,6 @@ from styles import css_style
 css_style()
 
 # Tampilan Antar Muka
-main()
 # view_home()
 # view_tutorial()
 # view_dataset_type()
