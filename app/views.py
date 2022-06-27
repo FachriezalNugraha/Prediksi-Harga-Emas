@@ -111,7 +111,7 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Algoritma Genetika")
+    with st.expander("Parameter Algoritma Genetika"):
         with st.form("Parameter Algoritma Genetika"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
