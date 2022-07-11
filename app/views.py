@@ -181,9 +181,13 @@ def main():
             # Dapatkan mode
             mode = get_session("mode")
             
-            # Dapatkan data test
-            X_test, y_test = get_session("X_test", "y_test")
+             # Dapatkan data train dan test
+            X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
+            # Urutkan data
+            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
+            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
+            
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
             
@@ -265,13 +269,8 @@ def main():
             st.dataframe(rekap_second_table.style.format(precision=2))
 
             # Dapatkan rata-rata error
-            error_data = {
-                "Rata-rata error MSE tanpa algoritma genetika": mse, 
-                "Rata-rata error MSE dengan algoritma genetika": mse_ga, 
-                "Rata-rata error RMSE tanpa algoritma genetika": rmse, 
-                "Rata-rata error RMSE dengan algoritma genetika": rmse_ga
-            }
-            # error_data = compar_error(rekap)
+            # error_data = compar_error_plain(mse, mse_ga, rmse, rmse_ga)
+            error_data = compar_error(rekap)
             
             for error_lable, value in error_data.items():
                 st.write(f"{error_lable}: {value:.2f}")
