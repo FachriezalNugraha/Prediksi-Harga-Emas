@@ -261,7 +261,7 @@ def main():
                 ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MLR", "Error MLR+Genetic",]
             ]
             rekap_second_table = rekap[
-                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR" , "Error RMSE MLR+Genetic",]
+                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic",]
             ]
             
             st.dataframe(rekap_first_table.style.format(precision=2))
