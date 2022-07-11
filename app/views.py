@@ -245,14 +245,24 @@ def main():
             st.write(f"Prediksi pada harga {mode}")
 
             # Dapatkan tabel rekapitulasi
-            rekap, rekap_show = rekap_table(
+            rekap = rekap_table(
                 X_test=X_test_sorted,
                 y_test=y_test_sorted,
                 model=linreg, 
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
             )
-            st.write(rekap_show)
+            
+            rekap_first_table = rekap[
+                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MLR", "Error MLR+Genetic",]
+            ]
+            rekap_second_table = rekap[
+                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic",]
+            ]
+            
+            st.dataframe(rekap_first_table.style.format(precision=2))
+            st.markdown("#")
+            st.dataframe(rekap_second_table.style.format(precision=2))
 
             # Dapatkan rata-rata error
             error_data = {
