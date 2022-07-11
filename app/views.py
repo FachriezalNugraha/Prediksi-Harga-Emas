@@ -198,14 +198,13 @@ def main():
             scaler_y = get_session("scaler_y")
 
             # Evaluasi model regresi linier
-            r2, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
+            r2, mse, rmse = evaluate(X_test_sorted, y_test_sorted, linreg, scaler_y)
             linreg_metrics = [r2, mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
-            mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
+            r2_ga, mse_ga, rmse_ga = evaluate(X_test_sorted, y_test_sorted, linreg_ga, scaler_y)
             #best_fitness = 1 / mse_ga 
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
-
             st.write(f"Metrik regresi pada harga {mode}")
 
             # Tampilkan tabel metrik
