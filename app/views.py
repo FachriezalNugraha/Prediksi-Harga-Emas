@@ -261,13 +261,13 @@ def main():
             rekap_first_table = rekap[
                 ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MLR", "Error MLR+Genetic",]
             ]
-            rekap_second_table = rekap[
-                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic",]
-            ]
+            #rekap_second_table = rekap[
+               # ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic",]
+            #]
             
             st.dataframe(rekap_first_table.style.format(precision=2))
             st.markdown("#")
-            st.dataframe(rekap_second_table.style.format(precision=2))
+            #st.dataframe(rekap_second_table.style.format(precision=2))
 
             # Dapatkan rata-rata error
             # error_data = compar_error_plain(mse, mse_ga, rmse, rmse_ga)
