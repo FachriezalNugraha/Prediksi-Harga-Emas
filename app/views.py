@@ -203,7 +203,7 @@ def main():
 
             # Evaluasi model regresi linier + GA
             r2_ga, mse_ga, rmse_ga = evaluate(X_test_sorted, y_test_sorted, linreg_ga, scaler_y)
-            best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
+            #best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
