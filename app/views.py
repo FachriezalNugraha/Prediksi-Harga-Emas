@@ -8,7 +8,7 @@ from data import load_csv_data, load_custom_data, verify_data
 from models import get_linreg_model, gen_algo, evaluate
 from pre import preprocess_data, prepare_data, sort_splitted_data
 from predictions import predict_ranged_days, prediction_date_based
-from tables import compar_error, rekap_table
+from tables import compar_error, compar_error_plain, rekap_table
 from plots import error_bar_chart, error_line_chart, predictions_line_chart
 from utils.sessions import get_session, set_session
 
