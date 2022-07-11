@@ -16,13 +16,13 @@ from utils.sessions import get_session, set_session
 def main():
     
     # Tampilan Home
-    st.title("Aplikasi Prediksi Harga Emas Batangan")
+    st.title("Prediksi Harga Emas")
     st.markdown("""
     ---
     Aplikasi untuk melakukan prediksi pada harga beli dan harga jual emas. Model machine learning
     yang digunakan adalah regresi linier dan regresi linier dengan optimalisasi algoritma genetika.
     Pelatihan model dilakukan dengan menggunakan dataset harga emas pada kurun waktu `1 Januari 2017`
-    hingga `19 Mei 2022`.
+    hingga `31 Juli 2021`.
 
     Adapun fitur-fitur yang terdapat pada aplikasi ini adalah:
     - Prediksi harga emas pada jangka waktu tertentu.
@@ -86,7 +86,7 @@ def main():
     # Tampilan Parameter Data
     with st.expander("Parameter Data"):
         with st.form("Parameter data"):
-            mode = st.selectbox(label="Pilihan Harga Emas", options=[c.BUY_MODE, c.SELL_MODE])
+            mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
             test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
             is_submit = st.form_submit_button("Simpan")
         
@@ -111,8 +111,8 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Algoritma Genetika"):
-        with st.form("Parameter Algoritma Genetika"):
+    with st.expander("Parameter Genetika"):
+        with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
             cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
@@ -176,21 +176,21 @@ def main():
 
 
     # Tampilan Hasil Evaluasi Model
-    with st.expander("Hasil Evaluasi Model"):
+    with st.expander("Hasil Evaluasi Model", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
             
-             # Dapatkan data train dan test
+            # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
             # Urutkan data
             X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
             y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
-            
+
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
-            
+
             # Dapatkan nilai fitness terbaik
             best_fitness = get_session("best_fitness")
 
@@ -203,15 +203,16 @@ def main():
 
             # Evaluasi model regresi linier + GA
             r2_ga, mse_ga, rmse_ga = evaluate(X_test_sorted, y_test_sorted, linreg_ga, scaler_y)
-            #best_fitness = 1 / mse_ga 
+            best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
+
             st.write(f"Metrik regresi pada harga {mode}")
 
             # Tampilkan tabel metrik
             metric_table = pd.DataFrame(
                 data=[linreg_metrics, linreg_ga_metrics],
                 index=["Regresi Linier", "Regresi Linier + GA"],
-                columns=["R2","MSE", "RMSE", "Fitness"]
+                columns=["R2", "MSE", "RMSE", "Fitness"]
             )
             metric_table = metric_table.style.format(precision=7)
             st.table(metric_table)
@@ -225,7 +226,7 @@ def main():
                 
 
     # Tampilan Hasil Perbandingan Prediksi
-    with st.expander("Hasil Perbandingan Prediksi"):
+    with st.expander("Hasil Perbandingan Prediksi", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -233,9 +234,8 @@ def main():
             # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
-            # Urutkan data
-            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
-            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
+            # Dapatkan data yang telah diurutkan
+            X_test_sorted, y_test_sorted = get_session("X_test_sorted", "y_test_sorted")
             
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
@@ -256,7 +256,7 @@ def main():
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
             )
-            
+
             rekap_first_table = rekap[
                 ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MLR", "Error MLR+Genetic",]
             ]
@@ -280,7 +280,7 @@ def main():
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error Model"):
+    with st.expander("Visualisasi Error", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -302,7 +302,7 @@ def main():
             
 
     # Tampilan Prediksi Jangka Waktu Tertentu
-    with st.expander("Prediksi Jangka Waktu Tertentu"):
+    with st.expander("Prediksi Jangka Waktu Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -334,7 +334,7 @@ def main():
                         scaler_y=scaler_y
                     )
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
-                    st.write(predict_period)
+                    st.dataframe(predict_period.style.format(precision=0))
                     st.markdown("#")
 
                     # error_chart = error_bar_chart(predict_period, days=period)
@@ -360,7 +360,7 @@ def main():
 
 
     # Tampilan Prediksi Tanggal Tertentu
-    with st.expander("Prediksi Tanggal Tertentu"):
+    with st.expander("Prediksi Tanggal Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -394,85 +394,4 @@ def main():
                     scaler_y=scaler_y,
                 )
                 st.write(f"Prediksi harga {mode} emas pada {date:%d %B %Y}")
-                st.dataframe(predictions_date.style.format(precision=2))
-
-
-
-# def show_predict_period(mode, period):
-#     predict_period = combine_predictions(
-#         period=st.session_state["period"], 
-#         X_test=st.session_state["predictor_{}".format(mode)], 
-#         rekap=st.session_state["rekap_{}".format(mode)],
-#         model=st.session_state["linreg_{}".format(mode)],
-#         model_ga=st.session_state["linreg_{}_ga".format(mode)],
-#         mode=mode
-#     )
-#     value_chart = predictions_line_chart(predict_period)
-#     error_chart = error_bar_chart(predict_period, days=st.session_state["period"] * 2)
-
-#     st.markdown("**Tabel prediksi harga {} pada jangka waktu {} hari**".format(mode, period))
-#     st.dataframe(predict_period.style.format(precision=2))
-#     st.markdown("##")
-#     st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
-#     st.bokeh_chart(value_chart)
-#     st.markdown("**Diagram error {} pada jangka waktu {} hari**".format(mode, period))
-#     st.bokeh_chart(error_chart)
-#     st.markdown("#")
-
-
-# @wrap_view("Prediksi Jangka Waktu Tertentu")
-# @is_trained
-# def view_predict_period():
-#     with st.form("Period"):
-#         show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
-#         show_mode = show_mode.lower().split()
-#         period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
-#         is_submit = st.form_submit_button("Prediksi")
-#     st.markdown("#")
-    
-#     if is_submit:
-#         st.session_state["period"] = period
-#     else:
-#         return
-    
-#     for mode in MODES:
-#         if mode in show_mode or "semua" in show_mode:
-#             show_predict_period(mode, period)
-#         else:
-#             continue
-
-        
-
-# def show_predict_date(mode, date):
-#     shift = st.session_state["shift"]
-#     predictions_date = prediction_date_based(
-#         date=date, 
-#         X=st.session_state["predictor_{}".format(mode)],
-#         model=st.session_state["linreg_beli"],
-#         model_ga=st.session_state["linreg_beli_ga"],
-#         mode=mode
-#     )
-
-#     st.write("Prediksi harga {} emas pada {:%d %B %Y}".format(mode, date))
-#     st.dataframe(predictions_date.style.format(precision=2))
-
-
-# @wrap_view("Prediksi Tanggal Tertentu")
-# @is_trained
-# def view_predict_date():
-#     shift = st.session_state["shift"]
-#     min_value=st.session_state["predictor_beli"].index[shift]
-#     max_value=st.session_state["predictor_beli"].index[-1] + pd.Timedelta(days=shift)
-
-#     with st.form("Date"):
-#         show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
-#         date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
-#         is_submit = st.form_submit_button("Prediksi")
-#         show_mode = show_mode.lower().split()
-    
-#     if is_submit:
-#         for mode in MODES:
-#             if mode in show_mode or "semua" in show_mode:
-#                 show_predict_date(mode, date)
-#             else:
-#                 continue
+                st.dataframe(predictions_date.style.format(precision=0))
