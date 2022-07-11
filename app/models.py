@@ -144,7 +144,7 @@ def evaluate(X, y, model, scaler_y=None):
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return mse, rmse, r2
+    return r2, mse, rmse
 
 
 
