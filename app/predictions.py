@@ -12,7 +12,7 @@ prediction_columns = ["MLR Without Genetic", "MLR With Genetic"]
 def predict_future_v3(X, model, colname, scaler_y, shift):
     X = X.iloc[-shift:]
     pred = model.predict(X)
-    pred = scaler_y.inverse_transform(pred)*10000
+    pred = scaler_y.inverse_transform(pred)
     df = pd.DataFrame({colname: np.squeeze(pred)}, index=X.index + pd.Timedelta(days=shift))
     return df
 
@@ -78,8 +78,8 @@ def prediction_date_based(date, X, model, model_ga, scaler_y):
     predictions_ga = scaler_y.inverse_transform(predictions_ga)
 
     predictions_data = {
-        "MLR Without GA": np.squeeze(predictions)*10000, 
-        "MLR With Genetic": np.squeeze(predictions_ga)*10000
+        "MLR Without GA": np.squeeze(predictions), 
+        "MLR With Genetic": np.squeeze(predictions_ga)
     }
 
     df = pd.DataFrame(
