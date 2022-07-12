@@ -26,11 +26,12 @@ def create_population(size, n_feat):
 
 
 def get_fitness(population, X_train, y_train):
-    constant = np.ones(shape=(X_train.shape[0], 1))
-    X_train = np.concatenate((constant, X_train), axis=1)
+    linreg = LinearRegression()
+    linreg.intercept_ = population[:, 0]
+    linreg.coef_ = population[:, 1:]
     
     # Lakukan prediksi dengan melakukan perkalian matriks antara koefisien dan data
-    predictions = np.matmul(X_train, population.T)
+    predictions = linreg.predict(X_train)
     
     # Hitung nilai fitness
     mse = np.mean((predictions - np.array(y_train))**2, axis=0)
@@ -140,11 +141,12 @@ def evaluate(X, y, model, scaler_y=None):
         predictions = scaler_y.inverse_transform(predictions)
         true = scaler_y.inverse_transform(true)
     
-    r2 = r2_score(true, predictions)
+    #r2 = r2_score(true, predictions)
+    mape = mean_absolute_percentage_error(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return r2, mse, rmse
+    return mape, mse, rmse
 
 
 

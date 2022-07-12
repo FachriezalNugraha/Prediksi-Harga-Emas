@@ -25,6 +25,9 @@ def rekap_table(X_test, y_test, model, model_ga, scaler_y):
         "Error MSE MLR+Genetic": (y_test_series - predictions_ga_series)**2,
         "Error RMSE MLR": np.sqrt((y_test_series - predictions_series)**2),
         "Error RMSE MLR+Genetic": np.sqrt((y_test_series - predictions_ga_series)**2),
+        "MAPE MLR": abs(y_test_series - predictions_series) / y_test_series,
+        "MAPE MLR+Genetic": abs(y_test_series - predictions_ga_series) / y_test_series,
+
     }, index=index)
 
     return rekap
@@ -33,14 +36,19 @@ def rekap_table(X_test, y_test, model, model_ga, scaler_y):
 def compar_error(rekap):
     mean_mse_error = rekap["Error MSE MLR"].mean()
     mean_rmse_error = np.sqrt(mean_mse_error)
+    mean_mape = rekap["MAPE MLR"].mean()
+
     mean_ga_mse_error = rekap["Error MSE MLR+Genetic"].mean()
     mean_ga_rmse_error = np.sqrt(mean_ga_mse_error)
+    mean_ga_mape = rekap["MAPE MLR+Genetic"].mean()
 
     return {
         "Rata-rata error MSE tanpa algoritma genetika": mean_mse_error, 
         "Rata-rata error MSE dengan algoritma genetika": mean_ga_mse_error, 
         "Rata-rata error RMSE tanpa algoritma genetika": mean_rmse_error, 
-        "Rata-rata error RMSE dengan algoritma genetika": mean_ga_rmse_error
+        "Rata-rata error RMSE dengan algoritma genetika": mean_ga_rmse_error,
+        "Rata-rata MAPE tanpa algoritma genetika": mean_mape,
+        "Rata-rata MAPE dengan algoritma genetika": mean_ga_mape,
     }
 
 
