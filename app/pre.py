@@ -15,8 +15,8 @@ def reverse_df(df):
     df = df.reset_index(drop=True)
     return df
 
-def scale_data(df):
-    return df / 10000
+#def scale_data(df):
+    #return df / 10000
 
 def get_variables(df, mode, period=1):
     # Copy dataframe supaya tidak menimpa dataframe asli
