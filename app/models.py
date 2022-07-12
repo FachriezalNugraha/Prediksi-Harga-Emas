@@ -142,7 +142,7 @@ def evaluate(X, y, model, scaler_y=None):
         true = scaler_y.inverse_transform(true)
     
     #r2 = r2_score(true, predictions)
-    mape = mean_absolute_percentage_error(true, predictions)
+    mape = mean_absolute_percentage_error(true, predictions)*100
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
