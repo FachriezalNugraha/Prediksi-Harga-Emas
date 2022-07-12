@@ -221,7 +221,7 @@ def main():
                 
 
     # Tampilan Hasil Perbandingan Prediksi
-    with st.expander("Hasil Perbandingan Prediksi"):
+   with st.expander("Hasil Perbandingan Prediksi", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -229,10 +229,6 @@ def main():
             # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
-            # Urutkan data
-            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
-            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
-            
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
@@ -246,23 +242,24 @@ def main():
 
             # Dapatkan tabel rekapitulasi
             rekap = rekap_table(
-                X_test=X_test_sorted,
-                y_test=y_test_sorted,
+                X_test=X_test,
+                y_test=y_test,
                 model=linreg, 
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
             )
-            
-            rekap_first_table = rekap[
-                ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MLR", "Error MLR+Genetic",]
+
+            rekap_shown_table = rekap[
+                [
+                    "Y_test", 
+                    "MLR Without Genetic", "MLR With Genetic", 
+                    "Error MLR", "Error MLR+Genetic",
+                    "Error MSE MLR", "Error MSE MLR+Genetic",
+                ]
             ]
-            #rekap_second_table = rekap[
-               # ["Y_test", "MLR Without Genetic", "MLR With Genetic", "Error MSE MLR", "Error MSE MLR+Genetic",]
-            #]
             
-            st.dataframe(rekap_first_table.style.format(precision=2))
+            st.dataframe(rekap_shown_table.style.format(precision=2))
             st.markdown("#")
-            #st.dataframe(rekap_second_table.style.format(precision=2))
 
             # Dapatkan rata-rata error
             # error_data = compar_error_plain(mse, mse_ga, rmse, rmse_ga)
