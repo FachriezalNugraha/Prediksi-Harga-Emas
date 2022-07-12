@@ -326,7 +326,7 @@ def main():
                         scaler_y=scaler_y
                     )
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
-                    st.dataframe(predict_period.style.format(precision=2))
+                    st.dataframe(predict_period.style.format(precision=0))
                     st.markdown("#")
 
                     # error_chart = error_bar_chart(predict_period, days=period)
