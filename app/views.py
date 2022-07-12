@@ -258,7 +258,7 @@ def main():
                 ]
             ]
             
-            st.dataframe(rekap_shown_table.style.format(precision=2))
+            st.dataframe(rekap_shown_table.style.format(precision=0))
             st.markdown("#")
 
             # Dapatkan rata-rata error
