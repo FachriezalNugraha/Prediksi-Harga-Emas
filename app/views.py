@@ -254,7 +254,6 @@ def main():
                     "Y_test", 
                     "MLR Without Genetic", "MLR With Genetic", 
                     "Error MLR", "Error MLR+Genetic",
-                    "Error MSE MLR", "Error MSE MLR+Genetic",
                 ]
             ]
             
