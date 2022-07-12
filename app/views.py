@@ -16,13 +16,13 @@ from utils.sessions import get_session, set_session
 def main():
     
     # Tampilan Home
-    st.title("Aplikasi Prediksi Harga Emas Batangan")
+    st.title("Prediksi Harga Emas")
     st.markdown("""
     ---
     Aplikasi untuk melakukan prediksi pada harga beli dan harga jual emas. Model machine learning
     yang digunakan adalah regresi linier dan regresi linier dengan optimalisasi algoritma genetika.
     Pelatihan model dilakukan dengan menggunakan dataset harga emas pada kurun waktu `1 Januari 2017`
-    hingga `19 Mei 2022`.
+    hingga `31 Juli 2021`.
 
     Adapun fitur-fitur yang terdapat pada aplikasi ini adalah:
     - Prediksi harga emas pada jangka waktu tertentu.
@@ -86,7 +86,7 @@ def main():
     # Tampilan Parameter Data
     with st.expander("Parameter Data"):
         with st.form("Parameter data"):
-            mode = st.selectbox(label="Pilihan Harga Emas", options=[c.BUY_MODE, c.SELL_MODE])
+            mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
             test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
             is_submit = st.form_submit_button("Simpan")
         
@@ -111,8 +111,8 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Algoritma Genetika"):
-        with st.form("Parameter Algoritma Genetika"):
+    with st.expander("Parameter Genetika"):
+        with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
             cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
@@ -175,8 +175,8 @@ def main():
             st.warning("Data belum disiapkan")
 
 
-   # Tampilan Hasil Evaluasi Model
-     with st.expander("Hasil Evaluasi Model", expanded=True):
+    # Tampilan Hasil Evaluasi Model
+    with st.expander("Hasil Evaluasi Model", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -221,7 +221,7 @@ def main():
                 
 
     # Tampilan Hasil Perbandingan Prediksi
-   with st.expander("Hasil Perbandingan Prediksi", expanded=True):
+    with st.expander("Hasil Perbandingan Prediksi", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -273,7 +273,7 @@ def main():
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error Model"):
+    with st.expander("Visualisasi Error", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -295,7 +295,7 @@ def main():
             
 
     # Tampilan Prediksi Jangka Waktu Tertentu
-    with st.expander("Prediksi Jangka Waktu Tertentu"):
+    with st.expander("Prediksi Jangka Waktu Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -327,7 +327,7 @@ def main():
                         scaler_y=scaler_y
                     )
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
-                    st.write(predict_period)
+                    st.dataframe(predict_period.style.format(precision=0))
                     st.markdown("#")
 
                     # error_chart = error_bar_chart(predict_period, days=period)
@@ -353,7 +353,7 @@ def main():
 
 
     # Tampilan Prediksi Tanggal Tertentu
-    with st.expander("Prediksi Tanggal Tertentu"):
+    with st.expander("Prediksi Tanggal Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -387,10 +387,9 @@ def main():
                     scaler_y=scaler_y,
                 )
                 st.write(f"Prediksi harga {mode} emas pada {date:%d %B %Y}")
-                st.dataframe(predictions_date.style.format(precision=2))
-
-
-
+                st.dataframe(predictions_date.style.format(precision=0))
+                
+                
 # def show_predict_period(mode, period):
 #     predict_period = combine_predictions(
 #         period=st.session_state["period"], 
