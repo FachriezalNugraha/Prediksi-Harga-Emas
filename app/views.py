@@ -16,7 +16,7 @@ from utils.sessions import get_session, set_session
 def main():
     
     # Tampilan Home
-    st.title("Aplikasi Prediksi Harga Emas Batangan"")
+    st.title("Aplikasi Prediksi Harga Emas Batangan")
     st.markdown("""
     ---
     Aplikasi untuk melakukan prediksi pada harga beli dan harga jual emas. Model machine learning
