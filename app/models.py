@@ -99,6 +99,8 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
             print(f"Best chromosome:\n{population[0]}")
             print(f"Best fitness:\n{fitness[0]}")
             print()
+            
+#elitism = dilakukan dengan cara menyimpan 2 kromosom terbaik dan fitness tertinggi agar nantinya ketika kromosom nya kita crossover dengan mutasi nanti kita tidak kehilangan kromosom terbaik (tidak rusak) kalo ngga make elitism maka akan di crossver sama mutasi, kalo udah dapet kromosom yg terbaik kalo ngga di elitism akan berubah nilai atau menjadi rusak . awalnya uda bagus malah mejadi lebih kurang baik, elitism berperan dan menyimpan kromosom terbaik , ketika kita melakukan crossover mutasi kita masih bisa menyimpan kromosom terbaik
 
         # Simpan 2 kromosom terbaik untuk generasi berikutnya
         next_gen = list(population[:2])
