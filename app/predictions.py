@@ -59,7 +59,7 @@ def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
 
 
 
-def prediction_date_based(date, X, y, model, model_ga, scaler_y):
+def prediction_date_based(date, X, model, model_ga, scaler_y):
     # Berapa banyak data yang digeser
     shift = c.SHIFT
 
@@ -68,11 +68,11 @@ def prediction_date_based(date, X, y, model, model_ga, scaler_y):
     start = pd_date - pd.Timedelta(days=shift)
     end = start
 
-    X_new = X.copy()
-    X_new = X_new.loc[start: end]
+    X = X.copy()
+    X = X.loc[start: end]
     
-    predictions = model.predict(X_new)
-    predictions_ga = model_ga.predict(X_new)
+    predictions = model.predict(X)
+    predictions_ga = model_ga.predict(X)
 
     predictions = scaler_y.inverse_transform(predictions)
     predictions_ga = scaler_y.inverse_transform(predictions_ga)
@@ -81,9 +81,6 @@ def prediction_date_based(date, X, y, model, model_ga, scaler_y):
         "MLR Without GA": np.squeeze(predictions), 
         "MLR With Genetic": np.squeeze(predictions_ga)
     }
-
-    if pd_date in X.index:
-        predictions_data["Y_true"] = y.loc[pd_date].values
 
     df = pd.DataFrame(
         data=predictions_data, 
