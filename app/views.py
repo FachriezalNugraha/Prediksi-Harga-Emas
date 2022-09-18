@@ -16,13 +16,13 @@ from utils.sessions import get_session, set_session
 def main():
     
     # Tampilan Home
-    st.title("Aplikasi Prediksi Harga Emas Batangan")
+    st.title("Prediksi Harga Emas")
     st.markdown("""
     ---
     Aplikasi untuk melakukan prediksi pada harga beli dan harga jual emas. Model machine learning
     yang digunakan adalah regresi linier dan regresi linier dengan optimalisasi algoritma genetika.
     Pelatihan model dilakukan dengan menggunakan dataset harga emas pada kurun waktu `1 Januari 2017`
-    hingga `19 Mei 2022`.
+    hingga `31 Juli 2021`.
 
     Adapun fitur-fitur yang terdapat pada aplikasi ini adalah:
     - Prediksi harga emas pada jangka waktu tertentu.
@@ -79,20 +79,21 @@ def main():
             if valid and custom_data is not None:
                 data_used = custom_data
                 dataset_type = custom
-
-        st.write(dataset_type) 
             
 
     # Tampilan Parameter Data
     with st.expander("Parameter Data"):
+
+        st.write("Tentukan konfigurasi yang akan diterapkan pada data.")
+
         with st.form("Parameter data"):
-            mode = st.selectbox(label="Pilihan Harga Emas", options=[c.BUY_MODE, c.SELL_MODE])
+            mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
             test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
             is_submit = st.form_submit_button("Simpan")
         
         if is_submit:
             # Siapkan data
-            X, X_unshifted, y = prepare_data(data_used, mode=mode)
+            X, X_unshifted, y, y_unshifted = prepare_data(data_used, mode=mode)
 
             # Proses data untuk machine learning
             X_train, X_test, X_unshifted, y_train, y_test, scaler_X, scaler_y = preprocess_data(X, X_unshifted, y, test_size)
@@ -103,6 +104,7 @@ def main():
                 X_train=X_train, 
                 X_test=X_test, 
                 X_unshifted=X_unshifted, 
+                y_unshifted=y_unshifted, 
                 y_train=y_train, 
                 y_test=y_test,
                 scaler_X=scaler_X,
@@ -111,7 +113,10 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Algoritma Genetika"):
+    with st.expander("Parameter Genetika"):
+        
+        st.write("Tentukan konfigurasi yang akan diterapkan pada algoritma genetika.")
+
         with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
@@ -210,7 +215,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["MAPE", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=3)
+            metric_table = metric_table.style.format(precision=4)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
@@ -218,6 +223,9 @@ def main():
                 mape=mape, mse=mse, rmse=rmse,
                 mape_ga=mape_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
             )
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat hasil evaluasi")
                 
 
     # Tampilan Hasil Perbandingan Prediksi
@@ -254,10 +262,11 @@ def main():
                     "Y_test", 
                     "MLR Without Genetic", "MLR With Genetic", 
                     "Error MLR", "Error MLR+Genetic",
+                    "Error MSE MLR", "Error MSE MLR+Genetic",
                 ]
             ]
             
-            st.dataframe(rekap_shown_table.style.format(precision=0))
+            st.dataframe(rekap_shown_table.style.format(precision=2))
             st.markdown("#")
 
             # Dapatkan rata-rata error
@@ -269,10 +278,13 @@ def main():
 
             # Simpan rekap ke dalam session
             set_session(rekap=rekap)
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat hasil perbandingan prediksi")
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error Model", expanded=True):
+    with st.expander("Visualisasi MAPE", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -280,17 +292,20 @@ def main():
             # Dapatkan rekap
             rekap = get_session("rekap")
 
-            # Tampilkan diagram batang error
-            st.write(f"Diagram batang MSE pada harga {mode}")
-            bar_chart = error_bar_chart(rekap)
+            # Tampilkan diagram batang
+            st.write(f"Diagram batang MAPE pada harga {mode}")
+            bar_chart = error_bar_chart(rekap, col1="MAPE MLR", col2="MAPE MLR+Genetic")
             st.bokeh_chart(bar_chart)
             
             st.markdown("#")
 
-            # Tampilkan diagram garis error
-            st.write(f"Diagram garis MSE pada harga {mode}")
-            bar_chart = error_line_chart(rekap)
+            # Tampilkan diagram garis
+            st.write(f"Diagram garis MAPE pada harga {mode}")
+            bar_chart = error_line_chart(rekap, col1="MAPE MLR", col2="MAPE MLR+Genetic")
             st.bokeh_chart(bar_chart)
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat visualisasi MAPE")
             
 
     # Tampilan Prediksi Jangka Waktu Tertentu
@@ -347,6 +362,8 @@ def main():
                     st.markdown(f"- Jika menggunakan regresi biasa, disarankan untuk {mode} emas pada tanggal {optimal_date}")
                     st.markdown(f"- Jika menggunakan regresi + GA, disarankan untuk {mode} emas pada tanggal {optimal_date_ga}")
 
+        else:
+            st.info("Latih model terlebih dahulu sebelum melakukan prediksi jangka waktu tertentu")
 
 
 
@@ -357,7 +374,8 @@ def main():
             # Dapatkan mode
             mode = get_session("mode")
 
-            # Dapatkan prediktor asli
+            # Dapatkan respon dan prediktor asli
+            y_unshifted = get_session("y_unshifted")
             X_unshifted = get_session("X_unshifted")
 
             # Dapatkan scaler
@@ -368,8 +386,8 @@ def main():
 
             # Tentukan tanggal minimal dan maksimal
             shift = c.SHIFT
-            min_value=X_unshifted.index[shift]
-            max_value=X_unshifted.index[-1] + pd.Timedelta(days=shift)
+            min_value = X_unshifted.index[shift]
+            max_value = X_unshifted.index[-1] + pd.Timedelta(days=shift)
 
             with st.form("Date"):
                 date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
@@ -381,89 +399,13 @@ def main():
                 predictions_date = prediction_date_based(
                     date=date, 
                     X=X_unshifted,
+                    y=y_unshifted,
                     model=linreg,
                     model_ga=linreg_ga,
                     scaler_y=scaler_y,
                 )
                 st.write(f"Prediksi harga {mode} emas pada {date:%d %B %Y}")
                 st.dataframe(predictions_date.style.format(precision=0))
-                
-                
-# def show_predict_period(mode, period):
-#     predict_period = combine_predictions(
-#         period=st.session_state["period"], 
-#         X_test=st.session_state["predictor_{}".format(mode)], 
-#         rekap=st.session_state["rekap_{}".format(mode)],
-#         model=st.session_state["linreg_{}".format(mode)],
-#         model_ga=st.session_state["linreg_{}_ga".format(mode)],
-#         mode=mode
-#     )
-#     value_chart = predictions_line_chart(predict_period)
-#     error_chart = error_bar_chart(predict_period, days=st.session_state["period"] * 2)
-
-#     st.markdown("**Tabel prediksi harga {} pada jangka waktu {} hari**".format(mode, period))
-#     st.dataframe(predict_period.style.format(precision=2))
-#     st.markdown("##")
-#     st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
-#     st.bokeh_chart(value_chart)
-#     st.markdown("**Diagram error {} pada jangka waktu {} hari**".format(mode, period))
-#     st.bokeh_chart(error_chart)
-#     st.markdown("#")
-
-
-# @wrap_view("Prediksi Jangka Waktu Tertentu")
-# @is_trained
-# def view_predict_period():
-#     with st.form("Period"):
-#         show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
-#         show_mode = show_mode.lower().split()
-#         period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
-#         is_submit = st.form_submit_button("Prediksi")
-#     st.markdown("#")
-    
-#     if is_submit:
-#         st.session_state["period"] = period
-#     else:
-#         return
-    
-#     for mode in MODES:
-#         if mode in show_mode or "semua" in show_mode:
-#             show_predict_period(mode, period)
-#         else:
-#             continue
-
         
-
-# def show_predict_date(mode, date):
-#     shift = st.session_state["shift"]
-#     predictions_date = prediction_date_based(
-#         date=date, 
-#         X=st.session_state["predictor_{}".format(mode)],
-#         model=st.session_state["linreg_beli"],
-#         model_ga=st.session_state["linreg_beli_ga"],
-#         mode=mode
-#     )
-
-#     st.write("Prediksi harga {} emas pada {:%d %B %Y}".format(mode, date))
-#     st.dataframe(predictions_date.style.format(precision=2))
-
-
-# @wrap_view("Prediksi Tanggal Tertentu")
-# @is_trained
-# def view_predict_date():
-#     shift = st.session_state["shift"]
-#     min_value=st.session_state["predictor_beli"].index[shift]
-#     max_value=st.session_state["predictor_beli"].index[-1] + pd.Timedelta(days=shift)
-
-#     with st.form("Date"):
-#         show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
-#         date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
-#         is_submit = st.form_submit_button("Prediksi")
-#         show_mode = show_mode.lower().split()
-    
-#     if is_submit:
-#         for mode in MODES:
-#             if mode in show_mode or "semua" in show_mode:
-#                 show_predict_date(mode, date)
-#             else:
-#                 continue
+        else:
+            st.info("Latih model terlebih dahulu sebelum melakukan prediksi tanggal tertentu")

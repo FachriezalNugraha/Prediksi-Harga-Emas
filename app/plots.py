@@ -40,21 +40,21 @@ def apply_bokeh_dark(p):
     p.yaxis.axis_line_color = TEXT_COLOR
 
 
-def error_bar_chart(rekap, days=30):
-    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[-days:]
+def error_bar_chart(rekap, col1, col2, days=30):
+    different = rekap[[col1, col2]].iloc[-days:]
     dates_str = list(different.index)
     different["date"] = dates_str
 
     p = figure(width=900, height=500, x_range=dates_str, tools=[], sizing_mode="stretch_width")
 
-    v1 = p.vbar(x=dodge("date", -0.11, range=p.x_range), width=0.2, top="Error MSE MLR", 
+    v1 = p.vbar(x=dodge("date", -0.11, range=p.x_range), width=0.2, top=col1, 
                 color=color1, source=different)
 
-    v2 = p.vbar(x=dodge("date", 0.11, range=p.x_range), width=0.2, top="Error MSE MLR+Genetic", 
+    v2 = p.vbar(x=dodge("date", 0.11, range=p.x_range), width=0.2, top=col2, 
                 color=color2, source=different)
 
     legend = Legend(
-        items=[("Error MSE MLR", [v1]), ("Error MSE MLR+Genetic", [v2])], 
+        items=[(col1, [v1]), (col2, [v2])], 
         location="left", 
         title_text_color=TEXT_COLOR, 
         label_text_color=TEXT_COLOR,
@@ -69,20 +69,20 @@ def error_bar_chart(rekap, days=30):
     return p
 
 
-def error_line_chart(rekap, days=30):
-    different = rekap[["Error MSE MLR", "Error MSE MLR+Genetic"]].iloc[-days:]
+def error_line_chart(rekap, col1, col2, days=30):
+    different = rekap[[col1, col2]].iloc[-days:]
     dates_str = list(different.index)
     different["date"] = dates_str
     p = figure(width=900, height=500, x_range=dates_str, sizing_mode="stretch_width")
 
-    l1 = p.line(x="date", y="Error MSE MLR", line_width=1.5, color=Category10_4[0], source=different)
-    c1 = p.circle(x="date", y="Error MSE MLR", size=5, color=Category10_4[0], source=different)
-    l2 = p.line(x="date", y="Error MSE MLR+Genetic", line_width=1.5, color=Category10_4[1], source=different)
-    c2 = p.circle(x="date", y="Error MSE MLR+Genetic", size=5, color=Category10_4[1], source=different)
+    l1 = p.line(x="date", y=col1, line_width=1.5, color=Category10_4[0], source=different)
+    c1 = p.circle(x="date", y=col1, size=5, color=Category10_4[0], source=different)
+    l2 = p.line(x="date", y=col2, line_width=1.5, color=Category10_4[1], source=different)
+    c2 = p.circle(x="date", y=col2, size=5, color=Category10_4[1], source=different)
 
     legend = Legend(items=[
-        ("Error MSE MLR", [l1, c1]), 
-        ("Error MSE MLR+Genetic", [l2, c2])
+        (col1, [l1, c1]), 
+        (col2, [l2, c2])
     ], location="left", title_text_color=TEXT_COLOR, label_text_color=TEXT_COLOR,
     background_fill_color=BG_COLOR)
 
