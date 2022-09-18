@@ -7,5 +7,9 @@ def css_style():
         div.streamlit-expanderHeader {
             font-size: 2rem;
         }
+
+        .epcbefy1 {
+            border: none;
+        }
     </style>
     """ ,unsafe_allow_html=True)

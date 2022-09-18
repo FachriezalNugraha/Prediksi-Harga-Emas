@@ -29,15 +29,15 @@ def get_variables(df, mode, period=1):
     predictor = df[["Inflasi", "HargaMinyak", f"Kurs{mode}"]]
     respon = df[[f"Harga{mode}"]]
 
+    # Simpan respon dan predictor asli
+    respon_unshifted = respon.copy()
+    predictor_unshifted = predictor.copy()
+
     # Mundurkan variabel respon ke observasi pada beberapa hari yang lalu
     respon = respon.shift(-period)
 
     # Hilangkan missing value
     respon = respon.dropna()
-
-    # Simpan predictor asli
-    st.session_state["predictor_{}".format(mode.lower())] = predictor
-    predictor_unshifted = predictor.copy()
 
     # Sejajarkan variabel respon dan prediktor supaya memiliki jumlah observasi yang sama
     predictor = predictor.loc[respon.index]
@@ -45,7 +45,7 @@ def get_variables(df, mode, period=1):
     # Sesuaikan tanggal pada variabel respon
     respon.index += pd.Timedelta(days=period)
 
-    return predictor, predictor_unshifted, respon
+    return predictor, predictor_unshifted, respon, respon_unshifted
 
 
 def prepare_data(df, mode):
@@ -59,12 +59,12 @@ def prepare_data(df, mode):
     df = df.set_index(c.DATE_COL)
 
     # Pre - Ambil variabel dari Data
-    X, X_real, y = get_variables(df, mode, period=c.SHIFT)
+    X, X_real, y, y_real = get_variables(df, mode, period=c.SHIFT)
 
     # Pre - Atur Skala Data
     # y = scale_data(y)
 
-    return X, X_real, y
+    return X, X_real, y, y_real
 
 
 def init_scaler(data, scaler):
