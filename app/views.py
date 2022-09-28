@@ -215,7 +215,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["MAPE", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=0)
+            metric_table = metric_table.style.format(precision=2)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
