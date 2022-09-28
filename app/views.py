@@ -215,7 +215,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["MAPE", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=2)
+            metric_table = metric_table.style.format(precision=0)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
@@ -266,7 +266,7 @@ def main():
                 ]
             ]
             
-            st.dataframe(rekap_shown_table.style.format(precision=2))
+            st.dataframe(rekap_shown_table.style.format(precision=0))
             st.markdown("#")
 
             # Dapatkan rata-rata error
