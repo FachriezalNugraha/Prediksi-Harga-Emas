@@ -113,9 +113,9 @@ def main():
 
     
     # Tampilan Parameter Genetika
-    with st.expander("Parameter Genetika"):
+    with st.expander("Parameter Algoritma Genetika"):
         
-        st.write("Tentukan konfigurasi yang akan diterapkan pada algoritma genetika.")
+        st.write("Tentukan Parameter yang akan diterapkan pada Algoritma Genetika.")
 
         with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
@@ -147,7 +147,7 @@ def main():
         param_table = pd.DataFrame(data, index=params_lable, columns=["Nilai"])
         st.table(param_table)
 
-        is_train = st.button("Latih")
+        is_train = st.button("Latih Model")
         st.markdown("#")
 
         if is_train and "X_train" in st.session_state:
@@ -215,7 +215,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["MAPE", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=4)
+            metric_table = metric_table.style.format(precision=0)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
