@@ -254,7 +254,7 @@ def main():
                 y_test=y_test,
                 model=linreg, 
                 model_ga=linreg_ga,
-                scaler_y=scaler_y,
+                #scaler_y=scaler_y,
             )
 
             rekap_shown_table = rekap[
