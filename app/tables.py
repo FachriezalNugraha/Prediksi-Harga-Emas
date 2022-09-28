@@ -27,7 +27,6 @@ def rekap_table(X_test, y_test, model, model_ga, scaler_y):
         "Error RMSE MLR+Genetic": np.sqrt((y_test_series - predictions_ga_series)**2),
         "MAPE MLR": abs((y_test_series - predictions_series) / y_test_series)*100%,
         "MAPE MLR+Genetic": abs((y_test_series - predictions_ga_series) / y_test_series)*100%,
-
     }, index=index)
 
     return rekap
