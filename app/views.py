@@ -200,12 +200,12 @@ def main():
 
             # Evaluasi model regresi linier
             mape, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
-            linreg_metrics = [mape, mse, rmse, None]
+            linreg_metrics = [mape*100, mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
             mape_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
             ## best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
-            linreg_ga_metrics = [mape_ga, mse_ga, rmse_ga, best_fitness]
+            linreg_ga_metrics = [mape_ga*100, mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
